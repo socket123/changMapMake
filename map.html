@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>经典案例</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="./css/mui.min.css">
+		<style type="text/css">
+			body,
+			html,
+			#allmap {
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				margin: 0;
+				font-family: "微软雅黑";
+			}
+
+			#movies {
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				margin: 0;
+				font-family: "微软雅黑";
+			}
+
+			p {
+				color: #FFFFFF !important;
+			}
+		</style>
+		<link href="http://cdn.bootcss.com/font-awesome/4.7.0/fonts/fontawesome-webfont.svg" />
+		<link href="http://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		<link href="css/industry_map.css" rel="stylesheet">
+		<link rel="stylesheet" href="css/index.css">
+		<link rel="stylesheet" href="//at.alicdn.com/t/font_918279_2p2b55x587a.css">
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=HQhKmm5BgoxOKkZaxIplU8nI5KVx4ZuR"></script>
+		<title>地图展示</title>
+	</head>
+	<body>
+		<div id="movies" v-cloak>
+			<div class="mover-index-top">
+				<div class="mover-index-top-two">
+					<!-- <a href="javascript:;" typeId="0" class="mover-index-left mover-index-on">全部</a> -->
+					<a href="javascript:;" v-for="item in moviesType" v-bind:class="item.clazz"  v-bind:typeId="item.typeId">{{item.typeName}}</a>
+				</div>
+			</div>
+			<div id="allmap"></div>
+			<div class="map-remake" v-on:click="numberInput()">
+			</div>
+			<div class="map-list">
+				<div class="map-image-li">
+					<img src="img/daohang.png" alt="" class="map-iamages" v-on:click="numberInputOnckicShow()">
+				</div>
+				<div class="map-list-images" v-on:click="onclucUrls()">
+					<img v-bind:src="docImg" style="    width: 100%;height: 100%;">
+				</div>
+				<div class="map-list-right">
+					<h4 v-on:click="onclucUrls()">{{docName}}</h4>
+					<p class="map-list-right-p">{{address}}</p>
+					<p class="map-list-right-p">类型:{{docTypeName}}</p>
+				</div>
+			</div>
+			<div class="map-alerts-remake" v-on:click="numberInputOnckic()">
+			</div>
+			<div class="map-alerts">
+				<ul>
+					<li class="" v-on:click="tapUrlTenXun()">
+						<!-- <a href="http://apis.map.qq.com/uri/v1/marker?marker=coord:32.0079691361432,118.81722069708676&title=南京市秦淮区&addr=&referer=yellowpage"> -->
+						<!-- <a href="bdapp://map/marker?location=32.0079691361432,118.81722069708676&title=南京市秦淮区&content=&traffic=on&src=andr.baidu.openAPIdemo"> -->
+						腾讯地图
+						<!-- </a> -->
+					</li>
+					<li v-on:click="tapUrlbaiDu()">
+						<!-- <a href="http://api.map.baidu.com/marker?location=32.0079691361432,118.81722069708676&title=南京市秦淮区&content=&output=html&src=webapp.baidu.openAPIdemo"> -->
+						<!-- <a href="bdapp://map/marker?location=32.0079691361432,118.81722069708676&title=南京市秦淮区&content=&traffic=on&src=andr.baidu.openAPIdemo"> -->
+						百度地图
+						<!-- </a> -->
+					</li>
+					<li v-on:click="tapUrlGaode()">
+						<!-- <a href="http://uri.amap.com/marker?position=118.81722069708676,32.0079691361432&name=南京市秦淮区&content=&src=yellowpage&coordinate=gaode&callnative=1"> -->
+						<!-- <a href="bdapp://map/marker?location=32.0079691361432,118.81722069708676&title=南京市秦淮区&content=&traffic=on&src=andr.baidu.openAPIdemo"> -->
+						高德地图
+						<!-- </a> -->
+					</li>
+				</ul>
+			</div>
+			</div>
+		</div>
+	</body>
+</html>
+<!-- <script type="text/javascript" src="http://api.map.baidu.com/library/TextIconOverlay/1.2/src/TextIconOverlay_min.js"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/library/MarkerClusterer/1.2/src/MarkerClusterer_min.js"></script>
+ -->
+ <script type="text/javascript" src="js/TextIconOverlay_min.js"></script>
+ <script type="text/javascript" src="js/MarkerClusterer_min.js"></script>
+ <script type="text/javascript" src="js/textIconOverlay.js"></script>
+<script type="text/javascript" src="js/maplib.js"></script>
+<!-- <script type="text/javascript" src="js/maplibks.js"></script> -->
+<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="js/vue.min.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+<script type="text/javascript" src="js/map_urls.js"></script>
+<script type="text/javascript">
+	var city = ""; // 城市 
+	getMak_TypeLeixing();
+	// 百度地图API功能
+	var map = new BMap.Map("allmap"); // 创建Map实例
+	map.centerAndZoom(new BMap.Point(118.871327, 32.151263), 12); // 初始化地图,设置中心点坐标和地图级别
+	// map.addControl(new BMap.MapTypeControl()); //添加地图类型控件
+	map.addControl(new BMap.NavigationControl({
+		enableGeolocation: true
+	}));
+
+	var geolocation = new BMap.Geolocation();
+	geolocation.getCurrentPosition(function(r) {
+		if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+			var mk = new BMap.Marker(r.point);
+			map.addOverlay(mk);
+			map.panTo(r.point);
+			console.log(r);
+			// alert('您的位置：' + r.point.lng + ',' + r.point.lat);
+
+			city = r.address.city;
+			console.log(city);
+			data_movies.city = city;
+			mapurlsCtiy(city);
+
+		} else {
+			alert('failed' + this.getStatus());
+		}
+	});
+
+	// 添加带有定位的导航控件
+	var navigationControl = new BMap.NavigationControl({
+		// 靠左上角位置
+		// anchor: BMAP_ANCHOR_TOP_LEFT,
+		// LARGE类型
+		// type: BMAP_NAVIGATION_CONTROL_LARGE,
+		// 启用显示定位
+		// enableGeolocation: true
+	});
+	map.addControl(navigationControl);
+
+
+
+	// 添加定位控件
+	var geolocationControl = new BMap.GeolocationControl();
+	geolocationControl.addEventListener("locationSuccess", function(e) {
+		// 定位成功事件
+		var address = '';
+		address += e.addressComponent.province;
+		address += e.addressComponent.city;
+		address += e.addressComponent.district;
+		address += e.addressComponent.street;
+		address += e.addressComponent.streetNumber;
+		city = e.addressComponent.city;
+		// alert("当前定位地址为：" + address);
+	});
+	geolocationControl.addEventListener("locationError", function(e) {
+		// 定位失败事件
+		alert(e.message);
+	});
+	map.addControl(geolocationControl);
+
+
+	map.addControl(new BMap.OverviewMapControl());
+	map.setCurrentCity(city); // 设置地图显示的城市 此项是必须设置的
+
+
+	// TODO: 触摸移动时触发此事件 此时开启可以拖动。虽然刚初始化该地图不可以拖动，但是可以触发拖动事件。
+	map.addEventListener("touchmove", function(e) {
+		map.enableDragging();
+	});
+	// TODO: 触摸结束时触发次此事件  此时开启禁止拖动
+	map.addEventListener("touchend", function(e) {
+		map.disableDragging();
+	});
+
+	// 初始化地图 禁止拖动   注：虽禁止拖动，但是可以出发拖动事件
+	map.disableDragging();
+
+	map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放		
+
+	// 地图中心点变更为
+	map.addEventListener("dragend", function(e) {
+		var center = map.getCenter();
+		// alert("地图中心点变更为：" + center.lng + ", " + center.lat);
+		console.log(e);
+
+		var cityGanage = e.currentTarget.Xg;
+		if (data_movies.city == cityGanage) { // 与中心城市相同
+
+		} else { // 不相同 
+			data_movies.city = cityGanage;
+			mapurlsCtiy(cityGanage);
+		}
+	});
+
+
+
+
+
+
+
+
+	//===================
+	// 	var xy = [{
+	// 			'x': 118.777882,
+	// 			'y': 32.059839
+	// 		},
+	// 		{
+	// 			'x': 118.777882,
+	// 			'y': 32.059839
+	// 		},
+	// 		{
+	// 			'x': 118.457882,
+	// 			'y': 32.049839
+	// 		},
+	// 		{
+	// 			'x': 118.62882,
+	// 			'y': 32.039839
+	// 		},
+	// 		{
+	// 			'x': 118.3882,
+	// 			'y': 32.029839
+	// 		},
+	// 		{
+	// 			'x': 118.6666,
+	// 			'y': 32.019839
+	// 		},
+	// 		{
+	// 			'x': 118.577882,
+	// 			'y': 32.051839
+	// 		},
+	// 		{
+	// 			'x': 118.377882,
+	// 			'y': 32.052839
+	// 		},
+	// 		{
+	// 			'x': 118.277882,
+	// 			'y': 32.053839
+	// 		},
+	// 		{
+	// 			'x': 118.177882,
+	// 			'y': 32.054839
+	// 		},
+	// 		{
+	// 			'x': 118.077882,
+	// 			'y': 31.055839
+	// 		},
+	// 		{
+	// 			'x': 118.795394,
+	// 			'y': 32.027002
+	// 		},
+	// 		{
+	// 			'x': 118.703733,
+	// 			'y': 32.168468
+	// 		}
+	// 	];
+	// 	var markers = [];
+	// 	var pt = null;
+	// 	for (var i in xy) {
+	// 		pt = new BMap.Point(xy[i].x, xy[i].y);
+	// 		console.log(pt);
+	// 		console.log(pt['name'] = "chneyu");
+	// 		console.log(new BMap.Marker(pt));
+	// 		markers.push(new BMap.Marker(pt));
+	// 	}
+	// 	//最简单的用法，生成一个marker数组，然后调用markerClusterer类即可。
+	// 	var markerClusterer = new BMapLib.MarkerClusterer(map, {
+	// 		markers: markers,
+	// 		girdSize: 100,
+	// 		styles: [{
+	// 			url: './img/red.png',
+	// 			size: new BMap.Size(92, 92),
+	// 			backgroundColor: '#E64B4E'
+	// 		}],
+	// 	});
+	// 	markerClusterer.setMaxZoom(13);
+	// 	markerClusterer.setGridSize(100);
+	//================================================
+
+
+
+
+	// 	$(".clicks").touchClick(function() {
+	// 		alert("touchClick");
+	// 	});
+
+	// map.disableDragging(); //禁用地图拖拽功能
+</script>
